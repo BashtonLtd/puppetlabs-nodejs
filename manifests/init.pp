@@ -9,10 +9,13 @@
 # Usage:
 #
 class nodejs(
-  $dev_package = false,
-  $manage_repo = false,
-  $proxy       = '',
-  $version     = 'present'
+  $dev_package  = false,
+  $manage_repo  = false,
+  $proxy        = '',
+  $version      = 'present',
+  $node_pkg     = $::nodejs::params::node_pkg,
+  $node_dev_pkg = $::nodejs::params::dev_pkg,
+  $npm_pkg      = $::nodejs::params::npm_pkg
 ) inherits nodejs::params {
   #input validation
   validate_bool($dev_package)
@@ -90,7 +93,7 @@ class nodejs(
   anchor { 'nodejs::repo': }
 
   package { 'nodejs':
-    name    => $nodejs::params::node_pkg,
+    name    => $node_pkg,
     ensure  => $version,
     require => Anchor['nodejs::repo']
   }
@@ -105,7 +108,7 @@ class nodejs(
       # Gentoo installes npm with the nodejs package when configured properly.
       # We use the gentoo/portage module since it is expected to be
       # available on all gentoo installs.
-      package_use { $nodejs::params::node_pkg:
+      package_use { $node_pkg:
         ensure  => present,
         use     => 'npm',
         require => Anchor['nodejs::repo'],
@@ -114,7 +117,7 @@ class nodejs(
 
     default: {
       package { 'npm':
-        name    => $nodejs::params::npm_pkg,
+        name    => $npm_pkg,
         ensure  => present,
         require => Anchor['nodejs::repo']
       }
@@ -136,5 +139,4 @@ class nodejs(
       require => Anchor['nodejs::repo']
     }
   }
-
 }
